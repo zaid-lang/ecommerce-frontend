@@ -1,46 +1,37 @@
-// frontend/src/auth/Signup.js
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('https://ecommerce-backend-gv5k.onrender.com/api/auth/register', {
+      await axios.post("https://ecommerce-backend-gv5k.onrender.com/api/auth/register", {
         name,
         email,
-        password
+        password,
       });
-      alert('Signup successful. Please login.');
-      navigate('/login');
+
+      alert("Signup successful! Please login.");
+      navigate("/login"); // Redirect to login page
     } catch (error) {
-      console.error("Error signing up", error);
-      alert('Signup failed');
+      console.error("Signup failed", error);
+      alert("Signup failed. Try again.");
     }
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div>
       <h2>Signup</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label><br />
-          <input type="text" value={name} onChange={e => setName(e.target.value)} required />
-        </div>
-        <div>
-          <label>Email:</label><br />
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-        </div>
-        <div>
-          <label>Password:</label><br />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-        </div>
+        <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         <button type="submit">Signup</button>
       </form>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import axios from "axios";
 import ProductList from "./components/ProductList";
 import Cart from "./components/Cart";
@@ -9,40 +9,34 @@ import Login from "./auth/Login";
 import Signup from "./auth/Signup";
 
 function App() {
-  const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
+  const [role, setRole] = useState("user");
 
-  // Fetch products from backend API
   useEffect(() => {
-    axios
-      .get("https://ecommerce-backend-gv5k.onrender.com/api/products")
-      .then((response) => setProducts(response.data))
-      .catch((error) => console.error("Error fetching products:", error));
-
-    // Check if user is logged in (JWT exists)
     const token = localStorage.getItem("token");
-    if (token) {
-      setUser(true);
+    const userData = localStorage.getItem("user");
+
+    if (token && userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      setRole(parsedUser.email === "shaikzaid2006@gmail.com" ? "admin" : "user");
     }
   }, []);
-
-  // Add product to cart
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-  };
 
   return (
     <Router>
       <Routes>
+        {/* ✅ Anyone can access these pages */}
+        <Route path="/" element={<ProductList />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+
+        {/* ✅ Anyone can register and login */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected Routes - Only logged-in users can access */}
-        <Route path="/" element={user ? <ProductList products={products} addToCart={addToCart} /> : <Navigate to="/login" />} />
-        <Route path="/cart" element={user ? <Cart cart={cart} /> : <Navigate to="/login" />} />
-        <Route path="/checkout" element={user ? <Checkout /> : <Navigate to="/login" />} />
-        <Route path="/admin" element={user ? <AdminPanel /> : <Navigate to="/login" />} />
+        {/* 🔐 Only Admin Can Access Admin Panel */}
+        <Route path="/admin" element={user && role === "admin" ? <AdminPanel /> : <ProductList />} />
       </Routes>
     </Router>
   );
