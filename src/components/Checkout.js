@@ -1,20 +1,55 @@
-import React from "react";
+import React, { useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import axios from "axios";
 
-function Checkout({ cart }) {
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+const stripePromise = loadStripe("your_stripe_publishable_key_here");
 
-  const handleCheckout = () => {
-    // Here you would integrate a payment gateway like Stripe
-    alert("Proceed to payment gateway.");
+function CheckoutForm() {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+
+    const { data } = await axios.post("https://your-backend-url/api/payments/create-payment-intent", {
+      amount: 1000, // Amount in cents (e.g., $10.00 = 1000 cents)
+      currency: "usd",
+    });
+
+    const result = await stripe.confirmCardPayment(data.clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+      },
+    });
+
+    if (result.error) {
+      setMessage(result.error.message);
+    } else {
+      setMessage("Payment Successful!");
+    }
+
+    setLoading(false);
   };
 
   return (
-    <div>
-      <h2>Checkout</h2>
-      <p>Total: ${total.toFixed(2)}</p>
-      <button onClick={handleCheckout}>Checkout</button>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <CardElement />
+      <button type="submit" disabled={!stripe || loading}>
+        {loading ? "Processing..." : "Pay"}
+      </button>
+      <p>{message}</p>
+    </form>
   );
 }
 
-export default Checkout;
+export default function Checkout() {
+  return (
+    <Elements stripe={stripePromise}>
+      <CheckoutForm />
+    </Elements>
+  );
+}
