@@ -25,7 +25,7 @@ function AdminPanel() {
       const response = await axios.get("https://ecommerce-backend-gv5k.onrender.com/api/products");
       setProducts(response.data);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("❌ Error fetching products:", error);
     }
   };
 
@@ -46,7 +46,7 @@ function AdminPanel() {
       setDescription("");
       setPrice("");
       setImage("");
-      fetchProducts();
+      fetchProducts(); // ✅ Refresh product list
     } catch (error) {
       console.error("❌ Error adding product:", error);
       alert("Failed to add product.");
@@ -62,8 +62,8 @@ function AdminPanel() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      alert("✅ Product deleted successfully!");
-      fetchProducts();
+      alert("❌ Product deleted!");
+      fetchProducts(); // ✅ Refresh product list
     } catch (error) {
       console.error("❌ Error deleting product:", error);
       alert("Failed to delete product.");
@@ -83,20 +83,17 @@ function AdminPanel() {
         <button type="submit">Add Product</button>
       </form>
 
+      {/* ✅ Product List */}
       <h3>Existing Products</h3>
-      {/* ✅ Display Products with Delete Button */}
-      {products.length > 0 ? (
-        <ul>
-          {products.map((product) => (
-            <li key={product._id}>
-              <strong>{product.name}</strong> - ${product.price}
-              <button onClick={() => handleDeleteProduct(product._id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No products available.</p>
-      )}
+      <ul>
+        {products.map((product) => (
+          <li key={product._id}>
+            <img src={product.image} alt={product.name} width="50" />
+            {product.name} - ${product.price}
+            <button onClick={() => handleDeleteProduct(product._id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
