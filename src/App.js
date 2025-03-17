@@ -10,8 +10,8 @@ function App() {
 
   // Fetch products from backend API
   useEffect(() => {
-    axios.get("http://localhost:5000/api/products")
-      .then(response => setProducts(response.data))
+    axios.get("https://ecommerce-backend-gv5k.onrender.com/api/products")
+    .then(response => setProducts(response.data))
       .catch(error => console.error("Error fetching products:", error));
   }, []);
 
